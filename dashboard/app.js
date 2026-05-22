@@ -27,8 +27,7 @@ const shapUI = {
     perf: { fill: document.getElementById('shapFillPerf'), val: document.getElementById('shapValPerf') }
 };
 
-const btnSales = document.getElementById('btnSales');
-const btnShap = document.getElementById('btnShap');
+const btnSimulate = document.getElementById('btnSimulate');
 
 // --- Global Chart Setup ---
 let variationChart;
@@ -47,26 +46,26 @@ function initChart() {
                 {
                     label: 'ROI Estimé (%)',
                     data: roiData,
-                    borderColor: '#4facfe',
-                    backgroundColor: 'rgba(79, 172, 254, 0.2)',
+                    borderColor: '#6a5acd',
+                    backgroundColor: 'rgba(106, 90, 205, 0.2)',
                     yAxisID: 'y-roi',
                     tension: 0.3,
                     fill: true,
                     pointBackgroundColor: '#fff',
-                    pointBorderColor: '#4facfe',
+                    pointBorderColor: '#6a5acd',
                     pointRadius: 4,
                     borderWidth: 2
                 },
                 {
                     label: 'Ventes Estimées (K€)',
                     data: salesData,
-                    borderColor: '#00f2fe',
-                    backgroundColor: 'rgba(0, 242, 254, 0.1)',
+                    borderColor: '#4a90e2',
+                    backgroundColor: 'rgba(74, 144, 226, 0.1)',
                     yAxisID: 'y-sales',
                     tension: 0.3,
                     fill: false,
                     pointBackgroundColor: '#fff',
-                    pointBorderColor: '#00f2fe',
+                    pointBorderColor: '#4a90e2',
                     pointRadius: 4,
                     borderWidth: 2,
                     borderDash: [5, 5]
@@ -82,29 +81,29 @@ function initChart() {
             },
             plugins: {
                 legend: {
-                    labels: { color: '#9ba1a6', font: { family: 'Inter' } }
+                    labels: { color: '#9ba1a6', font: { family: 'Outfit' } }
                 }
             },
             scales: {
                 x: {
                     grid: { color: 'rgba(255,255,255,0.05)' },
-                    ticks: { color: '#9ba1a6', font: { family: 'Inter' } }
+                    ticks: { color: '#9ba1a6', font: { family: 'Outfit' } }
                 },
                 'y-roi': {
                     type: 'linear',
                     display: true,
                     position: 'left',
-                    title: { display: true, text: 'ROI (%)', color: '#4facfe', font: { family: 'Inter' } },
+                    title: { display: true, text: 'ROI (%)', color: '#6a5acd', font: { family: 'Outfit' } },
                     grid: { color: 'rgba(255,255,255,0.05)' },
-                    ticks: { color: '#4facfe', font: { family: 'Inter' } }
+                    ticks: { color: '#6a5acd', font: { family: 'Outfit' } }
                 },
                 'y-sales': {
                     type: 'linear',
                     display: true,
                     position: 'right',
-                    title: { display: true, text: 'Ventes (K€)', color: '#00f2fe', font: { family: 'Inter' } },
+                    title: { display: true, text: 'Ventes (K€)', color: '#4a90e2', font: { family: 'Outfit' } },
                     grid: { drawOnChartArea: false },
-                    ticks: { color: '#00f2fe', font: { family: 'Inter' } }
+                    ticks: { color: '#4a90e2', font: { family: 'Outfit' } }
                 }
             }
         }
@@ -133,13 +132,12 @@ Object.keys(inputs).forEach(key => {
     });
 });
 
-btnSales.addEventListener('click', runSalesPrediction);
-btnShap.addEventListener('click', runShapAnalysis);
+btnSimulate.addEventListener('click', runSimulation);
 
 // Initialize on load
 document.addEventListener('DOMContentLoaded', () => {
     initChart();
-    runShapAnalysis();
+    runSimulation();
 });
 
 // --- Core Logic ---
@@ -158,45 +156,8 @@ function getPayloadAndInvestment() {
     return { payload, totalInvestment };
 }
 
-async function runSalesPrediction() {
-    setLoadingState(btnSales, true);
-    const { payload, totalInvestment } = getPayloadAndInvestment();
-
-    try {
-        const res = await fetch(`${API_URL}/predict/roi`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-        if (!res.ok) throw new Error("Erreur de communication API.");
-        const data = await res.json();
-        
-        // Fetch performance to keep UI consistent
-        const perfRes = await fetch(`${API_URL}/predict/performance`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-        const perfData = await perfRes.json();
-        outputs.perf.textContent = perfData.Performance_Prediction;
-        
-        const roiPredicted = data.ROI_Prediction_Percentage;
-        animateValue(outputs.roi, parseFloat(outputs.roi.textContent) || 0, roiPredicted, 1000);
-        
-        const expectedSales = totalInvestment > 0 ? totalInvestment * (roiPredicted / 100 + 1) : 0;
-        animateValue(outputs.sales, parseFloat(outputs.sales.textContent) || 0, expectedSales, 1000);
-
-        addDataToChart(roiPredicted, expectedSales);
-
-    } catch (error) {
-        console.error(error);
-    } finally {
-        setLoadingState(btnSales, false, "Prédiction de Ventes & ROI");
-    }
-}
-
-async function runShapAnalysis() {
-    setLoadingState(btnShap, true);
+async function runSimulation() {
+    setLoadingState(btnSimulate, true);
     const { payload, totalInvestment } = getPayloadAndInvestment();
 
     try {
@@ -226,7 +187,7 @@ async function runShapAnalysis() {
     } catch (error) {
         console.error(error);
     } finally {
-        setLoadingState(btnShap, false, "Analyse SHAP Complète");
+        setLoadingState(btnSimulate, false, "Simuler & Analyser");
     }
 }
 
