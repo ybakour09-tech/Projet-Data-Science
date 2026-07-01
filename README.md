@@ -3,14 +3,49 @@
 Bienvenue sur **PRISMA**, un Data Product avancé conçu pour révolutionner la façon dont les décideurs allouent leurs budgets marketing. 
 Ce projet utilise une architecture d'Intelligence Artificielle multi-modèles pour non seulement prédire les performances financières, mais surtout pour **expliquer mathématiquement** l'impact et la synergie de chaque canal (TV, Radio, Réseaux Sociaux).
 
-## Lancement Rapide
+## 🚀 Guide de Lancement Rapide (Windows)
 
-Vous utilisez Windows ? Lancer l'application est un jeu d'enfant :
-1. Clonez ce dépôt.
-2. Double-cliquez sur le script **`lancer_prisma.bat`** à la racine du projet.
-3. Le backend IA va démarrer automatiquement en arrière-plan et votre navigateur s'ouvrira sur le **Dashboard Prisma**.
+> [!IMPORTANT]
+> **Le secret de la réussite : Être dans le bon dossier !**
+> L'erreur la plus courante est de lancer des commandes depuis le dossier parent. Toutes les commandes de ce guide doivent être exécutées depuis la racine du projet (là où se trouve ce fichier `README.md`).
 
-> **Note :** Ne fermez pas la fenêtre de console noire tant que vous utilisez l'application. Elle fait tourner le moteur IA.
+### 1. Ouvrir le bon dossier dans le terminal
+
+Ouvrez un terminal (PowerShell ou Invite de commandes) et naviguez vers le dossier du projet :
+
+```powershell
+cd chemin\vers\Projet-Data-Science
+```
+
+### 2. Créer l'environnement virtuel (Recommandé)
+
+```powershell
+python -m venv venv
+.\venv\Scripts\Activate
+```
+> **Note :** Une fois activé, vous devriez voir `(venv)` apparaître au début de la ligne de votre terminal. Si vous avez une erreur de droits d'exécution de scripts sur PowerShell, tapez `Set-ExecutionPolicy Unrestricted -Scope CurrentUser` puis réessayez.
+
+### 3. Installer les dépendances
+
+Installez toutes les bibliothèques requises (cette opération prendra quelques instants) :
+
+```powershell
+pip install -r requirements.txt
+```
+
+### 4. Lancer l'application PRISMA
+
+Un script d'automatisation a été préparé pour vous. Toujours depuis le dossier `Projet-Data-Science`, tapez simplement :
+
+```powershell
+.\lancer_prisma.bat
+```
+
+*(Vous pouvez également double-cliquer sur le fichier `lancer_prisma.bat` depuis l'explorateur de fichiers Windows).*
+
+- Une console noire va s'ouvrir pour faire tourner le backend d'Intelligence Artificielle. **Ne la fermez pas !**
+- Le système va charger les modèles en mémoire.
+- Votre navigateur internet s'ouvrira automatiquement sur le **Dashboard Prisma**.
 
 ---
 
