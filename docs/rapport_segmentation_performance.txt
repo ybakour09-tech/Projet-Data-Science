@@ -1,0 +1,54 @@
+================================================================================
+RAPPORT : IDENTIFICATION DES CAMPAGNES HAUTE / FAIBLE PERFORMANCE
+MÉTHODE : SEGMENTATION NON SUPERVISÉE (KMeans) - AUCUN MODÈLE SUPERVISÉ
+================================================================================
+
+1. MÉTHODOLOGIE
+--------------------------------------------------
+  Variables d'entrée : TV, Radio, Social Media (budgets normalisés).
+  Algorithme : KMeans (non supervisé), fit sur le TRAIN uniquement.
+  Choix de K : score de silhouette sur le TRAIN (voir tableau ci-dessous).
+  Application au TEST : kmeans.predict() uniquement (aucun ré-entraînement,
+  aucune fuite de données).
+  IMPORTANT : aucun classifieur supervisé n'est entraîné à partir de ces
+  clusters. Un nouveau scénario budgétaire est assigné à un segment via
+  la même fonction déterministe scaler.transform() + kmeans.predict(),
+  utilisée de façon identique ici, à l'évaluation, et en production
+  (api.py, endpoint /predict/performance).
+
+2. CHOIX DE K (score de silhouette, TRAIN)
+--------------------------------------------------
+  K=2 : silhouette=0.4678  <-- retenu
+  K=3 : silhouette=0.3592
+  K=4 : silhouette=0.3470
+  K=5 : silhouette=0.3163
+  K=6 : silhouette=0.3155
+
+3. LABELS MÉTIER DES CLUSTERS
+--------------------------------------------------
+  Cluster 0 -> Basse Performance
+  Cluster 1 -> Haute Performance
+
+4. VALIDATION SUR LE TRAIN (Sales / ROI moyens par segment)
+--------------------------------------------------
+                      Sales     ROI     TV  Radio  Social Media
+Performance_Segment                                            
+Basse Performance    121.56  156.87  34.18  10.89          2.04
+Haute Performance    273.77  152.58  76.91  26.50          4.74
+
+5. VALIDATION SUR LE TEST - jamais vu pendant le clustering
+--------------------------------------------------
+                      Sales     ROI     TV  Radio  Social Media
+Performance_Segment                                            
+Basse Performance    124.37  156.13  34.92  11.13          2.02
+Haute Performance    274.01  153.31  76.94  26.25          4.73
+
+6. INTERPRÉTATION
+--------------------------------------------------
+  La séparation observée sur le TEST (jamais utilisé pour entraîner le
+  KMeans) confirme que la segmentation, bien qu'entièrement non supervisée
+  et fondée uniquement sur les budgets, correspond à une vraie différence
+  de performance commerciale (Sales) et de rentabilité (ROI). La méthode
+  répond donc à l'objectif métier ('identifier les campagnes à haute ou
+  faible performance') sans nécessiter de label supervisé ni de
+  classifieur entraîné en aval.

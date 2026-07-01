@@ -1,0 +1,56 @@
+================================================================================
+RAPPORT : PRÉDICTION DU VOLUME DE VENTES (RÉGRESSION MULTICANAUX)
+================================================================================
+
+1. PREPROCESSING
+--------------------------------------------------
+  Variables explicatives (les 3 canaux, aucun ignoré) : ['TV', 'Radio', 'Social Media']
+  Normalisation : StandardScaler, fit sur TRAIN uniquement
+  Variable cible : Sales
+  Taille Train : 3613 | Taille Test : 904
+
+2. MÉTRIQUES DE PERFORMANCE (calculées sur le TEST, jamais vu à l'entraînement)
+--------------------------------------------------
+                     Modèle  R² Train  R² Test  RMSE (Test)  MAE (Test)  Écart Train/Test
+         Random Forest (ML)    0.9998   0.9987       3.3850      2.7310            0.0011
+          SVR Linéaire (ML)    0.9990   0.9990       2.9302      2.3461            0.0000
+          SGD Linéaire (ML)    0.9990   0.9990       2.9297      2.3491            0.0000
+MLP Réseau de Neurones (DL)    0.9989   0.9989       3.1136      2.4911            0.0000
+
+3. IMPORTANCE RÉELLE DE CHAQUE CANAL (Random Forest)
+--------------------------------------------------
+  TV                  : 0.9990 (99.9%)
+  Social Media        : 0.0005 (0.0%)
+  Radio               : 0.0005 (0.0%)
+
+4. COEFFICIENTS DU MODÈLE LINÉAIRE (SGD, sur variables standardisées)
+--------------------------------------------------
+  Interprétation : signe = sens de l'effet, magnitude = force de l'effet
+  (comparable entre canaux car les variables sont standardisées).
+
+  TV                  : +92.6659
+  Radio               : -0.0701
+  Social Media        : -0.0209
+
+5. ÉCHANTILLON DE PRÉDICTIONS (10 premières lignes)
+--------------------------------------------------
+ Sales_Réel  Random Forest (ML)  SVR Linéaire (ML)  SGD Linéaire (ML)  MLP Réseau de Neurones (DL)
+      63.36               58.18              60.55              60.46                        59.20
+     182.75              184.88             185.12             185.05                       184.90
+     266.91              266.35             266.92             266.96                       266.36
+     247.78              252.99             252.66             252.72                       252.78
+     322.47              321.59             320.24             320.36                       319.40
+     283.42              284.53             284.66             284.78                       285.18
+      89.84               92.08              92.55              92.50                        92.86
+     147.15              146.01             145.93             145.90                       146.20
+     274.91              270.95             274.06             274.06                       273.95
+     269.95              271.36             270.62             270.44                       268.87
+
+6. NOTE MÉTHODOLOGIQUE
+--------------------------------------------------
+  Contrairement à l'ancienne version (train_models.py, dépréciée), ce script
+  n'ignore aucun canal budgétaire. Si Random Forest attribue une importance
+  très dominante à TV, ce n'est pas un biais de modélisation : c'est un
+  résultat empirique constaté sur ce dataset (voir Analyse_Fonctionnelle_
+  Projet.txt), à interpréter comme une caractéristique du jeu de données
+  Kaggle synthétique utilisé, et non comme une décision arbitraire du code.
