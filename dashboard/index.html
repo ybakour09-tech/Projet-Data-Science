@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,23 +11,27 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div class="app-container">
-        
+
         <!-- Sidebar : Inputs -->
         <aside class="sidebar glass-panel">
             <div class="logo-container">
                 <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2L2 22H22L12 2Z" stroke="url(#paint0_linear)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M12 12L7 22H17L12 12Z" fill="url(#paint1_linear)" fill-opacity="0.3"/>
+                    <path d="M12 2L2 22H22L12 2Z" stroke="url(#paint0_linear)" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    <path d="M12 12L7 22H17L12 12Z" fill="url(#paint1_linear)" fill-opacity="0.3" />
                     <defs>
-                        <linearGradient id="paint0_linear" x1="12" y1="2" x2="12" y2="22" gradientUnits="userSpaceOnUse">
-                            <stop stop-color="#4facfe"/>
-                            <stop offset="1" stop-color="#00f2fe"/>
+                        <linearGradient id="paint0_linear" x1="12" y1="2" x2="12" y2="22"
+                            gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#4facfe" />
+                            <stop offset="1" stop-color="#00f2fe" />
                         </linearGradient>
-                        <linearGradient id="paint1_linear" x1="12" y1="12" x2="12" y2="22" gradientUnits="userSpaceOnUse">
-                            <stop stop-color="#4facfe"/>
-                            <stop offset="1" stop-color="#00f2fe"/>
+                        <linearGradient id="paint1_linear" x1="12" y1="12" x2="12" y2="22"
+                            gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#4facfe" />
+                            <stop offset="1" stop-color="#00f2fe" />
                         </linearGradient>
                     </defs>
                 </svg>
@@ -36,7 +41,11 @@
 
             <div class="control-group">
                 <div class="control-header">
-                    <svg class="control-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>
+                    <svg class="control-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
+                        <polyline points="17 2 12 7 7 2"></polyline>
+                    </svg>
                     <label for="tvBudget">Budget TV</label>
                 </div>
                 <div class="range-container">
@@ -47,7 +56,14 @@
 
             <div class="control-group">
                 <div class="control-header">
-                    <svg class="control-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 15C2 17.2091 3.79086 19 6 19H18C20.2091 19 22 17.2091 22 15V9C22 6.79086 20.2091 5 18 5H6C3.79086 5 2 6.79086 2 9V15Z"></path><path d="M6 12H6.01"></path><path d="M18 12H18.01"></path></svg>
+                    <svg class="control-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M2 15C2 17.2091 3.79086 19 6 19H18C20.2091 19 22 17.2091 22 15V9C22 6.79086 20.2091 5 18 5H6C3.79086 5 2 6.79086 2 9V15Z">
+                        </path>
+                        <path d="M6 12H6.01"></path>
+                        <path d="M18 12H18.01"></path>
+                    </svg>
                     <label for="radioBudget">Budget Radio</label>
                 </div>
                 <div class="range-container">
@@ -58,7 +74,10 @@
 
             <div class="control-group">
                 <div class="control-header">
-                    <svg class="control-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                    <svg class="control-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                    </svg>
                     <label for="socialBudget">Budget Social Media</label>
                 </div>
                 <div class="range-container">
@@ -74,10 +93,8 @@
 
         <!-- Main Content : Results -->
         <main class="content-area">
-            
-            <header class="main-header">
-                <h2>Synthèse Prédictive</h2>
-            </header>
+
+
 
             <div class="metrics-grid">
                 <!-- VENTES -->
@@ -108,11 +125,11 @@
             </div>
 
             <div class="bottom-grid">
-                
+
                 <div class="bottom-panel">
-                    <h3 class="section-title gradient-text">Analyse Combinatoire (Impact SHAP)</h3>
+                    <h3 class="section-title gradient-text">Analyse Combinatoire</h3>
                     <div class="shap-container glass-panel">
-                        
+
                         <div class="base-value-info">
                             <span>Base de départ moyenne : <strong id="baseRoi">--%</strong></span>
                             <span>Modulation algorithmique calculée en temps réel.</span>
@@ -122,7 +139,11 @@
                             <!-- TV SHAP -->
                             <div class="shap-row">
                                 <div class="shap-label">
-                                    <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>
+                                    <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
+                                        <polyline points="17 2 12 7 7 2"></polyline>
+                                    </svg>
                                     TV
                                 </div>
                                 <div class="shap-track">
@@ -134,7 +155,12 @@
                             <!-- Radio SHAP -->
                             <div class="shap-row">
                                 <div class="shap-label">
-                                    <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 15C2 17.2091 3.79086 19 6 19H18C20.2091 19 22 17.2091 22 15V9C22 6.79086 20.2091 5 18 5H6C3.79086 5 2 6.79086 2 9V15Z"></path></svg>
+                                    <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path
+                                            d="M2 15C2 17.2091 3.79086 19 6 19H18C20.2091 19 22 17.2091 22 15V9C22 6.79086 20.2091 5 18 5H6C3.79086 5 2 6.79086 2 9V15Z">
+                                        </path>
+                                    </svg>
                                     Radio
                                 </div>
                                 <div class="shap-track">
@@ -146,7 +172,11 @@
                             <!-- Social SHAP -->
                             <div class="shap-row">
                                 <div class="shap-label">
-                                    <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                                    <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z">
+                                        </path>
+                                    </svg>
                                     Social
                                 </div>
                                 <div class="shap-track">
@@ -154,7 +184,7 @@
                                 </div>
                                 <div class="shap-value" id="shapValSocial">--</div>
                             </div>
-                            
+
                             <div class="shap-row context-row">
                                 <div class="shap-label gradient-text">Contexte de Campagne</div>
                                 <div class="shap-track">
@@ -181,4 +211,5 @@
 
     <script src="app.js"></script>
 </body>
+
 </html>
