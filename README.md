@@ -3,7 +3,7 @@
 Bienvenue sur **PRISMA**, un Data Product avancé conçu pour révolutionner la façon dont les décideurs allouent leurs budgets marketing. 
 Ce projet utilise une architecture d'Intelligence Artificielle multi-modèles pour non seulement prédire les performances financières, mais surtout pour **expliquer mathématiquement** l'impact et la synergie de chaque canal (TV, Radio, Réseaux Sociaux).
 
-## 🚀 Guide de Lancement Rapide (Windows)
+## Guide de Lancement Rapide (Windows)
 
 > [!IMPORTANT]
 > **Le secret de la réussite : Être dans le bon dossier !**
