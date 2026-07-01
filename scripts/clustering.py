@@ -1,3 +1,10 @@
+# ⚠️ DÉPRÉCIÉ : ce script clusterisait sur la variable Sales SEULE, ce qui rendait
+# impossible toute application à un NOUVEAU scénario budgétaire (Sales est
+# justement ce qu'on essaie de prédire). Il a été remplacé par la segmentation
+# non supervisée sur les budgets (TV/Radio/Social Media) dans
+# scripts/build_production_pipeline.py, qui est la version utilisée par l'API.
+# Conservé ici uniquement à titre de comparaison / historique pour le rapport.
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt

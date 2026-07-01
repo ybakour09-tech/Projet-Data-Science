@@ -194,7 +194,8 @@ async function runSimulation() {
 // --- UI Updates ---
 
 function updateUI(perfData, shapData, totalInvestment) {
-    outputs.perf.textContent = perfData.Performance_Prediction;
+    // CORRECTION : utilise Performance_Segment (segmentation non supervisée)
+    outputs.perf.textContent = perfData.Performance_Segment;
 
     const roiPredicted = shapData.Predicted_ROI;
     animateValue(outputs.roi, parseFloat(outputs.roi.textContent) || 0, roiPredicted, 1000);
@@ -207,7 +208,8 @@ function updateUI(perfData, shapData, totalInvestment) {
     updateShapRow(shapUI.tv, shapData.SHAP_Impact_Breakdown["TV"], maxShapRange);
     updateShapRow(shapUI.radio, shapData.SHAP_Impact_Breakdown["Radio"], maxShapRange);
     updateShapRow(shapUI.social, shapData.SHAP_Impact_Breakdown["Social Media"], maxShapRange);
-    updateShapRow(shapUI.perf, shapData.SHAP_Impact_Breakdown["Performance"], maxShapRange);
+    // CORRECTION : utilise Segment_Cluster (cohérent avec la clé renvoyée par l'API)
+    updateShapRow(shapUI.perf, shapData.SHAP_Impact_Breakdown["Segment_Cluster"], maxShapRange);
 }
 
 function updateShapRow(uiElements, value, maxRange) {

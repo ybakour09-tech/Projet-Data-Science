@@ -1,0 +1,24 @@
+{
+  "r2_train": 0.9418132826613517,
+  "r2_test": 0.9297852661188445,
+  "rmse_test": 7.136702989968496,
+  "mae_test": 4.732940143923011,
+  "n_train": 3613,
+  "n_test": 904,
+  "best_k": 2,
+  "silhouette_scores": {
+    "2": 0.4678,
+    "3": 0.3592,
+    "4": 0.347,
+    "5": 0.3163,
+    "6": 0.3155
+  },
+  "cluster_label_map": {
+    "0": "Basse Performance",
+    "1": "Haute Performance"
+  },
+  "mean_sales_per_cluster_train": {
+    "0": 121.56,
+    "1": 273.77
+  }
+}

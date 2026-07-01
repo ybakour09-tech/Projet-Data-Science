@@ -1,3 +1,11 @@
+# ⚠️ DÉPRÉCIÉ : remplacé par scripts/build_production_pipeline.py qui corrige
+# 3 problèmes critiques : (1) absence de split train/test (le modèle déployé
+# n'était jamais évalué), (2) segmentation par classifieur supervisé entraîné
+# sur un label lui-même issu d'un clustering sur Sales (incohérence
+# train/serving), (3) absence d'évaluation honnête du modèle réellement
+# utilisé par l'API. NE PLUS EXÉCUTER CE SCRIPT : il écraserait les artefacts
+# corrigés dans models/.
+
 import pandas as pd
 import numpy as np
 import joblib

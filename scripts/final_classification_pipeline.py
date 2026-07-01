@@ -1,3 +1,13 @@
+# ⚠️ DÉPRÉCIÉ : ce script entraînait un classifieur SUPERVISÉ pour ré-apprendre
+# des labels "Performance" eux-mêmes issus d'un clustering sur Sales. Problème :
+# le modèle de régression ROI en production voyait le VRAI label à
+# l'entraînement, mais le label PRÉDIT (potentiellement faux) en production
+# -> décalage train/serving non documenté.
+# Remplacé par une segmentation 100% non supervisée (KMeans direct sur les
+# budgets) dans scripts/build_production_pipeline.py, utilisée de façon
+# identique à l'entraînement, à l'évaluation et en production (API).
+# Conservé ici uniquement à titre de comparaison / historique.
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt

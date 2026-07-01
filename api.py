@@ -2,17 +2,27 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 import joblib
+import json
+import numpy as np
 import pandas as pd
 import shap
 import os
 
 app = FastAPI(
-    title="API Prédiction ROI & Mix Média",
-    description="API REST pour estimer la performance et le ROI des campagnes publicitaires, avec explicabilité SHAP.",
-    version="1.0.0"
+    title="API Prédiction ROI & Mix Média - PRISMA",
+    description=(
+        "API REST pour estimer le ROI des campagnes publicitaires et segmenter "
+        "les profils budgétaires, avec explicabilité SHAP.\n\n"
+        "Architecture (corrigée) :\n"
+        "1. Segmentation NON SUPERVISÉE (KMeans) des profils budgétaires "
+        "TV/Radio/Social Media -> identifie un segment de performance, "
+        "sans aucun classifieur supervisé.\n"
+        "2. Régression du ROI (MLPRegressor / Deep Learning), entraînée et "
+        "évaluée sur un vrai split train/test (voir /model-info)."
+    ),
+    version="2.0.0",
 )
 
-# Configuration CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -21,127 +31,164 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load models at startup
-print("Chargement des modèles...")
 MODELS_DIR = "models"
+FEATURES = ["TV", "Radio", "Social Media"]
+
+_models_loaded = False
+load_error = None
+
 try:
     scaler = joblib.load(os.path.join(MODELS_DIR, "scaler.pkl"))
-    encoder = joblib.load(os.path.join(MODELS_DIR, "encoder.pkl"))
-    clf_perf = joblib.load(os.path.join(MODELS_DIR, "classifier_perf.pkl"))
+    kmeans = joblib.load(os.path.join(MODELS_DIR, "kmeans_segmentation.pkl"))
+    cluster_label_map = joblib.load(os.path.join(MODELS_DIR, "cluster_label_map.pkl"))
     reg_roi = joblib.load(os.path.join(MODELS_DIR, "regressor_roi.pkl"))
     shap_bg = joblib.load(os.path.join(MODELS_DIR, "shap_background.pkl"))
-    
-    # Recreate SHAP explainer
-    print("Création de l'Explainer SHAP...")
+
+    with open(os.path.join(MODELS_DIR, "evaluation_report.json"), "r", encoding="utf-8") as f:
+        evaluation_report = json.load(f)
+
     explainer = shap.KernelExplainer(reg_roi.predict, shap_bg)
+    _models_loaded = True
 except Exception as e:
+    load_error = str(e)
     print(f"Erreur lors du chargement des modèles : {e}")
 
-features_num = ['TV', 'Radio', 'Social Media']
 
-# Modèle de données pour valider automatiquement le JSON en entrée
 class BudgetScenario(BaseModel):
     TV: float = Field(..., description="Budget alloué à la TV (ex: 50.0)")
     Radio: float = Field(..., description="Budget alloué à la Radio (ex: 20.0)")
     Social_Media: float = Field(..., alias="Social Media", description="Budget alloué aux Réseaux Sociaux (ex: 5.0)")
-    
+
     class Config:
         populate_by_name = True
         json_schema_extra = {
-            "example": {
-                "TV": 50.0,
-                "Radio": 20.0,
-                "Social Media": 5.0
-            }
+            "example": {"TV": 50.0, "Radio": 20.0, "Social Media": 5.0}
         }
 
-def _preprocess_input(scenario: BudgetScenario):
-    """ Helper function to scale numerical inputs. """
-    raw_df = pd.DataFrame([[scenario.TV, scenario.Radio, scenario.Social_Media]], columns=features_num)
-    scaled_array = scaler.transform(raw_df)
-    scaled_df = pd.DataFrame(scaled_array, columns=features_num)
-    return scaled_df
 
-@app.post("/predict/performance", summary="Prédire la Catégorie de Performance")
+def _scale_input(scenario: BudgetScenario) -> pd.DataFrame:
+    raw_df = pd.DataFrame([[scenario.TV, scenario.Radio, scenario.Social_Media]], columns=FEATURES)
+    scaled_array = scaler.transform(raw_df)
+    return pd.DataFrame(scaled_array, columns=FEATURES)
+
+
+def _assign_segment(X_scaled: pd.DataFrame):
+    """Segmentation NON SUPERVISÉE : même fonction utilisée à l'entraînement,
+    à l'évaluation sur le test set, et ici en production. Pas de classifieur
+    supervisé, donc pas de décalage train/serving."""
+    cluster_id = int(kmeans.predict(X_scaled)[0])
+    label = cluster_label_map.get(cluster_id, f"Segment {cluster_id}")
+    return cluster_id, label
+
+
+def _require_models():
+    if not _models_loaded:
+        raise HTTPException(status_code=503, detail=f"Modèles non chargés : {load_error}")
+
+
+@app.get("/health", summary="Vérifier que le service est actif")
+def health():
+    return {
+        "status": "ok" if _models_loaded else "degraded",
+        "models_loaded": _models_loaded,
+        "error": load_error,
+    }
+
+
+@app.get("/model-info", summary="Informations et métriques honnêtes du modèle déployé")
+def model_info():
+    _require_models()
+    return {
+        "status": "success",
+        "regression_model": "MLPRegressor (Deep Learning)",
+        "segmentation_model": "KMeans (non supervisé, fit sur TV/Radio/Social Media uniquement)",
+        "evaluation": evaluation_report,
+        "note": (
+            "Les métriques R²/RMSE/MAE ci-dessus sont calculées sur un test set "
+            "jamais vu pendant l'entraînement (split 80/20, random_state=42)."
+        ),
+    }
+
+
+@app.post("/predict/performance", summary="Segmenter le profil budgétaire (non supervisé)")
 def predict_performance(scenario: BudgetScenario):
     """
-    Détermine si le scénario budgétaire donnera une 'Haute Performance' ou 'Basse Performance'.
+    Assigne le scénario budgétaire à un segment ('Haute Performance' /
+    'Basse Performance') via KMeans, sans aucun classifieur supervisé.
+    Le segment est caractérisé a posteriori par le Sales moyen observé
+    historiquement dans ce cluster.
     """
+    _require_models()
     try:
-        X_scaled = _preprocess_input(scenario)
-        
-        pred_encoded = clf_perf.predict(X_scaled)[0]
-        pred_label = encoder.inverse_transform([pred_encoded])[0]
-        
-        proba = clf_perf.predict_proba(X_scaled)[0]
-        confidence = round(float(max(proba)) * 100, 2)
-        
+        X_scaled = _scale_input(scenario)
+        cluster_id, label = _assign_segment(X_scaled)
+        distances = kmeans.transform(X_scaled)[0]
         return {
             "status": "success",
-            "Performance_Prediction": str(pred_label),
-            "Confidence_Percentage": confidence
+            "Segment_Cluster_Id": cluster_id,
+            "Performance_Segment": label,
+            "method": "KMeans (non supervisé)",
+            "distance_to_centroids": [round(float(d), 4) for d in distances],
         }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
 
 @app.post("/predict/roi", summary="Estimer le ROI (Valeur exacte)")
 def predict_roi(scenario: BudgetScenario):
     """
-    Estime le Retour sur Investissement (ROI) exact en % via le Réseau de Neurones Profond.
+    Estime le ROI (%) via le MLPRegressor (Deep Learning), entraîné et évalué
+    sur un split train/test honnête (voir /model-info pour les métriques réelles).
     """
+    _require_models()
     try:
-        X_scaled = _preprocess_input(scenario)
-        
-        # Predict performance implicitly required by the regression model
-        pred_encoded = clf_perf.predict(X_scaled)[0]
-        pred_label = encoder.inverse_transform([pred_encoded])[0]
-        
-        X_reg = X_scaled.copy()
-        X_reg['Performance_encoded'] = pred_encoded
-        
-        # Predict ROI
+        X_scaled = _scale_input(scenario)
+        cluster_id, label = _assign_segment(X_scaled)
+
+        X_reg = np.column_stack([X_scaled.values, [cluster_id]])
         roi_pred = reg_roi.predict(X_reg)[0]
-        
+
         return {
             "status": "success",
-            "Performance_Implicit_Prediction": str(pred_label),
-            "ROI_Prediction_Percentage": round(float(roi_pred), 2)
+            "Performance_Segment": label,
+            "ROI_Prediction_Percentage": round(float(roi_pred), 2),
         }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
 
 @app.post("/predict/shap_impact", summary="Analyser l'Impact des Canaux (SHAP)")
 def predict_shap(scenario: BudgetScenario):
     """
-    Décompose la prédiction du ROI pour comprendre mathématiquement l'impact de chaque canal publicitaire.
-    Idéal pour les scénarios combinatoires.
+    Décompose la prédiction du ROI pour comprendre l'impact de chaque canal
+    publicitaire et du segment budgétaire identifié.
     """
+    _require_models()
     try:
-        X_scaled = _preprocess_input(scenario)
-        
-        pred_encoded = clf_perf.predict(X_scaled)[0]
-        
-        X_reg = X_scaled.copy()
-        X_reg['Performance_encoded'] = pred_encoded
-        
+        X_scaled = _scale_input(scenario)
+        cluster_id, label = _assign_segment(X_scaled)
+
+        X_reg = np.column_stack([X_scaled.values, [cluster_id]])
         shap_values = explainer.shap_values(X_reg)
         base_value = float(explainer.expected_value)
-        
-        features = features_num + ['Performance']
-        impact = {feat: round(float(val), 4) for feat, val in zip(features, shap_values[0])}
-        
+
+        feature_names = FEATURES + ["Segment_Cluster"]
+        impact = {feat: round(float(val), 4) for feat, val in zip(feature_names, shap_values[0])}
+
         predicted_roi = base_value + sum(shap_values[0])
-        
+
         return {
             "status": "success",
+            "Performance_Segment": label,
             "Base_ROI_Average": round(base_value, 2),
             "Predicted_ROI": round(float(predicted_roi), 2),
-            "SHAP_Impact_Breakdown": impact
+            "SHAP_Impact_Breakdown": impact,
         }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     import uvicorn
     print("Démarrage du serveur FastAPI via Uvicorn sur le port 8000...")
     uvicorn.run("api:app", host="0.0.0.0", port=8000, reload=False)
